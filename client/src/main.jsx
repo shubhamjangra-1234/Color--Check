@@ -10,9 +10,7 @@ import {
 
 const Home = lazy(() => import("./Components/Home/Home"));
 const Layout = lazy(() => import("./Components/Layout/Layout"));
-const File = lazy(() => import("./Components/file"));
-const Demo = lazy(() => import("./Components/Home/Demo")); // Import demo component
-
+const Try = lazy(() => import("./Components/Home/Try")); // Import Try component
 import Loading from "./Components/Loading/Loading";
 
 const router = createBrowserRouter(
@@ -33,21 +31,11 @@ const router = createBrowserRouter(
           </Suspense>
         }
       />
-
       <Route
-        path="/file"
+        path="try"
         element={
           <Suspense fallback={<Loading />}>
-            <File />
-          </Suspense>
-        }
-      />
-
-      <Route
-        path="/demo" // Add route for demo component
-        element={
-          <Suspense fallback={<Loading />}>
-            <Demo />
+            <Try />
           </Suspense>
         }
       />
