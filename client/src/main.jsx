@@ -10,7 +10,6 @@ import {
 
 const Home = lazy(() => import("./Components/Home/Home"));
 const Layout = lazy(() => import("./Components/Layout/Layout"));
-const Try = lazy(() => import("./Components/Home/Try")); // Import Try component
 import Loading from "./Components/Loading/Loading";
 
 const router = createBrowserRouter(
@@ -28,14 +27,6 @@ const router = createBrowserRouter(
         element={
           <Suspense fallback={<Loading />}>
             <Home />
-          </Suspense>
-        }
-      />
-      <Route
-        path="try"
-        element={
-          <Suspense fallback={<Loading />}>
-            <Try />
           </Suspense>
         }
       />

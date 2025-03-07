@@ -270,16 +270,22 @@ function Home() {
                   <div
                     key={index}
                     style={{ backgroundColor: color }}
-                    className="shadow-md color-box w-20 h-20 rounded-full flex items-center justify-center text-zinc-200"
+                    className="shadow-md color-box w-full h-24 rounded-sm flex items-center justify-center text-zinc-200"
                   >
                     {color}
                   </div>
                 ))}
               </div>
-              <div className="rounded-md p-2 my-6 overflow-hidden bg-zinc-900">
-                <h2 className="m-2 text-zinc-300">Upload your Image here</h2>
+            
+             
+            </div>
+        )}
+        </div>
+         <div className="w-full rounded-md p-2 my-6 overflow-hidden bg-zinc-900">
+                <h2 className="m-2 text-center text-zinc-300">Upload your Image here</h2>
+                <div className="flex items-center justify-center">
                 <input
-                  className="mb-4 p-2 w-1/2 bg-zinc-200 shadow-2xl border-gray-900 rounded md:w-auto"
+                  className="p-2 w-1/2 bg-zinc-200 shadow-2xl border-gray-900 rounded md:w-auto"
                   type="file"
                   onChange={(e) => setFile(e.target.files[0])}
                 />
@@ -289,17 +295,15 @@ function Home() {
                 >
                   Upload
                 </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
         {/* Extracted Text Section */}
         <div className="mt-8 p-4 bg-zinc-800 text-zinc-200 rounded-lg shadow-xl">
           <h2 className="text-2xl font-mono mb-4">Extracted Text</h2>
           <div className="bg-zinc-900 p-4 rounded-lg">
             {/* Display the extracted text */}
             {extractedText ? (
-              <pre className="whitespace-pre-wrap bg-zinc-800 p-4 rounded-md text-zinc-200">
+              <pre className="whitespace-pre-wrap  rounded-md text-zinc-200">
                 {extractedText}
               </pre>
             ) : (
