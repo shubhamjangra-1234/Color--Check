@@ -66,11 +66,11 @@ function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/getImage")
+      .get("https://color-check.onrender.com/getImage")
       .then((res) => {
         if (res.data && res.data.length > 0) {
           const lastImage = res.data[res.data.length - 1].image;
-          setFirstImage(`http://localhost:3000/Images/${lastImage}`);
+          setFirstImage(`https://color-check.onrender.com/${lastImage}`);
         }
       })
       .catch((err) => console.log(err));
@@ -87,7 +87,7 @@ function Home() {
 
     try {
       // Upload the image to the server
-      const uploadResponse = await axios.post("http://localhost:3000/upload", formdata);
+      const uploadResponse = await axios.post("https://color-check.onrender.com/upload", formdata);
 
       // Extract text using Tesseract.js
       const { data: { text } } = await Tesseract.recognize(
@@ -100,7 +100,7 @@ function Home() {
 
       // Update the UI without refreshing
       const lastImage = uploadResponse.data.image;
-      setFirstImage(`http://localhost:3000/Images/${lastImage}`);
+      setFirstImage(`https://color-check.onrender.com/Images/${lastImage}`);
     } catch (error) {
       console.error("Error during upload or text extraction:", error);
     }
