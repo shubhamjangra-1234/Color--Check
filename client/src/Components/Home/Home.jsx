@@ -4,6 +4,7 @@ import ColorThief from "colorthief";
 import tinycolor from "tinycolor2";
 import { Bar } from "react-chartjs-2";
 import Tesseract from "tesseract.js";
+import Loading from "../Loading/Loading";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,6 +31,9 @@ function Home() {
   const [contrastResults, setContrastResults] = useState([]);
   const [readabilityFeedback, setReadabilityFeedback] = useState([]);
   const [extractedText, setExtractedText] = useState(""); // State to store extracted text
+  const [loadingText, setLoadingText] = useState(false); // New state for loading
+  const [suggestions, setSuggestions] = useState([]);
+
   const predefinedColors = [
     "#FF0000",
     "#003DA5",
@@ -53,7 +57,23 @@ function Home() {
   const calculateContrast = (color1, color2) => {
     return tinycolor.readability(color1, color2).toFixed(2);
   };
-
+  const suggestBetterColors = (extractedColors) => {
+    const bgColor = extractedColors[0]; // Assume first color is the background
+    const suggestions = extractedColors.map((color) => {
+      const contrast = calculateContrast(color, bgColor);
+      if (contrast < 3) {
+        const betterColor = predefinedColors.find(
+          (preColor) => calculateContrast(preColor, bgColor) >= 4.5
+        );
+        return {
+          color,
+          suggestion: betterColor || "Consider a higher contrast color",
+        };
+      }
+      return { color, suggestion: "Good contrast" };
+    });
+    setSuggestions(suggestions);
+  };
   const generateFeedback = (contrastRatio) => {
     if (contrastRatio >= 4.5) {
       return "Pass ✅";
@@ -63,6 +83,11 @@ function Home() {
       return "Fail ❌";
     }
   };
+  useEffect(() => {
+    if (colors.length > 0) {
+      suggestBetterColors(colors);
+    }
+  }, [colors]);
 
   useEffect(() => {
     axios
@@ -81,20 +106,22 @@ function Home() {
       alert("Please select a file first!");
       return;
     }
+    setLoadingText(true); // Start loading animation
     setFirstImage(URL.createObjectURL(file));
     const formdata = new FormData();
     formdata.append("file", file);
 
     try {
       // Upload the image to the server
-      const uploadResponse = await axios.post("https://color-check.onrender.com/upload", formdata);
+      const uploadResponse = await axios.post(
+        "https://color-check.onrender.com/upload",
+        formdata
+      );
 
       // Extract text using Tesseract.js
-      const { data: { text } } = await Tesseract.recognize(
-        file,
-        'eng',
-        {}
-      );
+      const {
+        data: { text },
+      } = await Tesseract.recognize(file, "eng", {});
 
       setExtractedText(text); // Set the extracted text to state
 
@@ -103,6 +130,8 @@ function Home() {
       setFirstImage(`https://color-check.onrender.com/Images/${lastImage}`);
     } catch (error) {
       console.error("Error during upload or text extraction:", error);
+    } finally {
+      setLoadingText(false); // Stop loading animation
     }
   };
 
@@ -219,8 +248,8 @@ function Home() {
           Analyze and Compare Colors Effortlessly
         </h2>
         <p className="text-sm text-center mb-6 text-gray-400">
-          Upload an image to analyze its colors ,extract the text inside the image and compare them with predefined
-          colors.
+          Upload an image to analyze its colors, extract the text inside the
+          image and compare them with predefined colors.
         </p>
         <div className="flex justify-center space-x-4 mb-20">
           <button
@@ -246,7 +275,12 @@ function Home() {
         </div>
         <div className="mb-8 p-4 bg-zinc-800 text-zinc-300 rounded-lg shadow-xl">
           <p className="text-sm">
-          The **Color Checker** project is a tool that analyzes colors from uploaded images, compares them with predefined colors, and generates a percentage-based similarity chart. It also includes features like contrast ratio calculation for WCAG compliance, text readability analysis, and text extraction from images, making it a comprehensive tool for color validation and accessibility testing.
+            The **Color Checker** project is a tool that analyzes colors from
+            uploaded images, compares them with predefined colors, and generates
+            a percentage-based similarity chart. It also includes features like
+            contrast ratio calculation for WCAG compliance, text readability
+            analysis, and text extraction from images, making it a comprehensive
+            tool for color validation and accessibility testing.
           </p>
         </div>
         <div
@@ -254,11 +288,19 @@ function Home() {
           className="flex flex-col md:flex-row items-center justify-between shadow-sm shadow-zinc-700 p-6 rounded-lg bg-zinc-800"
         >
           <div className="w-full md:w-1/2 p-2 rounded-lg h-96 flex items-center justify-center">
-            <img
-              className="h-full w-full rounded-lg object-contain"
-              src={firstImage}
-              alt="Uploaded"
-            />
+            {firstImage ? (
+              <img
+                className="h-full w-full rounded-lg object-contain"
+                src={firstImage}
+                alt="Uploaded"
+              />
+            ) : (
+              <img
+                className="h-full w-full rounded-lg object-contain"
+                src="https://via.placeholder.com/400x300?text=No+Image+Uploaded"
+                alt="Placeholder"
+              />
+            )}
           </div>
           {firstImage && (
             <div className="w-full md:w-1/2 mx-4 p-4 text-center md:mt-0">
@@ -276,115 +318,131 @@ function Home() {
                   </div>
                 ))}
               </div>
-            
-             
             </div>
-        )}
+          )}
         </div>
-         <div className="w-full rounded-md p-2 my-6 overflow-hidden bg-zinc-900">
-                <h2 className="m-2 text-center text-zinc-300">Upload your Image here</h2>
-                <div className="flex items-center justify-center">
-                <input
-                  className="p-2 w-1/2 bg-zinc-200 shadow-2xl border-gray-900 rounded md:w-auto"
-                  type="file"
-                  onChange={(e) => setFile(e.target.files[0])}
-                />
-                <button
-                  className="px-4 mx-4 py-2 bg-violet-700 border-2 border-violet-700 drop-shadow-2xl text-sm text-zinc-50 rounded-md hover:bg-violet-800 md:w-auto"
-                  onClick={handleUpload}
-                >
-                  Upload
-                </button>
-                </div>
-              </div>
+        <div className="w-full rounded-md p-2 my-6 overflow-hidden bg-zinc-900">
+          <h2 className="m-2 text-center text-zinc-300">
+            Upload your Image here
+          </h2>
+          <div className="flex items-center justify-center">
+            <input
+              className="p-2 w-1/2 bg-zinc-200 shadow-2xl border-gray-900 rounded md:w-auto"
+              type="file"
+              onChange={(e) => setFile(e.target.files[0])}
+            />
+            <button
+              className="px-4 mx-4 py-2 bg-violet-700 border-2 border-violet-700 drop-shadow-2xl text-sm text-zinc-50 rounded-md hover:bg-violet-800 md:w-auto"
+              onClick={handleUpload}
+            >
+              Upload
+            </button>
+          </div>
+        </div>
         {/* Extracted Text Section */}
-        <div className="mt-8 p-4 bg-zinc-800 text-zinc-200 rounded-lg shadow-xl">
+        <div className="mt-8 p-2 bg-zinc-800 text-zinc-200 rounded-lg shadow-xl">
           <h2 className="text-2xl font-mono mb-4">Extracted Text</h2>
-          <div className="bg-zinc-900 p-4 rounded-lg">
-            {/* Display the extracted text */}
-            {extractedText ? (
-              <pre className="whitespace-pre-wrap  rounded-md text-zinc-200">
+          {/* Loading Animation */}
+          {loadingText ? (
+            <Loading />
+          ) : extractedText ? (
+            <div>
+              <pre className="whitespace-pre-wrap bg-zinc-900 p-2 rounded-md text-zinc-200">
                 {extractedText}
               </pre>
-            ) : (
-              <p className="text-zinc-400">No text extracted yet. Upload an image to extract text.</p>
-            )}
+              {/* Copy Text Button */}
+              <button
+                className="mt-4 px-4 py-2 bg-violet-700 text-zinc-200 rounded-md hover:bg-violet-800"
+                onClick={() => copyTextToClipboard(extractedText)}
+              >
+                Copy Text
+              </button>
+            </div>
+          ) : (
+            <p className="text-zinc-400">
+              No text extracted yet. Upload an image to extract text.
+            </p>
+          )}
+        </div>
+        <h2 className="mt-6 text-3xl font-mono p-2 text-zinc-200 border-b border-dashed border-zinc-200 w-fit">
+          Color Comparison:
+        </h2>
+        <p className="text-lg mt-2 p-4 rounded-lg text-zinc-300">
+          The graphs show how closely the colors extracted from your uploaded
+          image match predefined colors. Each bar represents a predefined color,
+          and the percentage indicates the similarity. A higher percentage means
+          the extracted color is very similar to the predefined color, while a
+          lower percentage indicates less similarity.
+        </p>
+        <p className="mt-2 text-center p-4 bg-zinc-700 rounded-md text-zinc-200">
+          The graph below shows the similarity percentage between the extracted
+          color and predefined colors.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {colorComparison.map((comp, idx) => (
+            <div key={idx} className="mt-4 bg-white p-4 rounded-lg shadow-md">
+              <h3 className="text-lg font-mono mb-2 text-gray-700">
+                Extracted Color: {comp.extractedColor}
+              </h3>
+              <div
+                key={comp.extractedColor}
+                style={{ backgroundColor: comp.extractedColor }}
+                className="shadow-md color-box w-7 h-7 rounded-full flex items-center justify-center text-white"
+              ></div>
+              <Bar
+                data={{
+                  labels: comp.similarities.map((s) => s.color),
+                  datasets: [
+                    {
+                      label: "Similarity %",
+                      data: comp.similarities.map((s) => s.similarity),
+                      backgroundColor: comp.similarities.map((s) => s.color),
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { display: false },
+                  },
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        {suggestions.length > 0 && (
+          <div className="mt-6 w-full p-2 bg-zinc-800 rounded-lg">
+            <h2 className="text-lg text-zinc-300 font-semibold">
+              Suggestions for Improvement:
+            </h2>
+            <ul className="mt-2  ">
+              {suggestions.map((s, index) => (
+                <li
+                  key={index}
+                  className="p-2 text-sm bg-zinc-700 text-white rounded-md mt-2 flex items-center"
+                >
+                  <div className="text-white text-center">
+                    Use
+                    <span
+                      style={{ backgroundColor: s.suggestion }}
+                      className="inline-block w-6 h-6 mx-4 rounded-full border border-white"
+                    ></span>
+                    <strong className="text-green-400">{s.suggestion}</strong>{" "}
+                    instead of{" "}
+                    <span
+                      style={{ backgroundColor: s.color }}
+                      className="inline-block  w-6 h-6 mx-2 rounded-full border border-white"
+                    ></span>
+                    <span className="text-red-400">{s.color}</span> for better
+                    readability.
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-            {/* Copy Text Button */}
-                  {extractedText && (
-                    <button
-                    className="mt-4 px-4 py-2 bg-violet-700 text-zinc-200 rounded-md hover:bg-violet-800"
-                    onClick={() => copyTextToClipboard(extractedText)}
-                    >
-                    Copy Text
-                    </button>
-                  )}
-                  </div>
-                </div>
-                <h2 className="mt-6 text-3xl font-mono p-2 text-zinc-200 border-b border-dashed border-zinc-200 w-fit">
-                  Color Comparison:
-                </h2>
-                <p className="text-lg mt-2 p-4 rounded-lg text-zinc-300">
-                  The graphs show how closely the colors extracted from your uploaded
-                  image match predefined colors. Each bar represents a predefined color,
-                  and the percentage indicates the similarity. A higher percentage means
-                  the extracted color is very similar to the predefined color, while a
-                  lower percentage indicates less similarity.
-                </p>
-                <p className="mt-2 text-center p-4 bg-zinc-700 rounded-md text-zinc-200">
-                  The graph below shows the similarity percentage between the extracted
-                  color and predefined colors.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {colorComparison.map((comp, idx) => (
-                  <div key={idx} className="mt-4 bg-white p-4 rounded-lg shadow-md">
-                    <h3 className="text-lg font-mono mb-2 text-gray-700">
-                    Extracted Color: {comp.extractedColor}
-                    </h3>
-                    <div
-                    key={comp.extractedColor}
-                    style={{ backgroundColor: comp.extractedColor }}
-                    className="shadow-md color-box w-7 h-7 rounded-full flex items-center justify-center text-white"
-                    ></div>
-                    <Bar
-                    data={{
-                      labels: comp.similarities.map((s) => s.color),
-                      datasets: [
-                      {
-                        label: "Similarity %",
-                        data: comp.similarities.map((s) => s.similarity),
-                        backgroundColor: comp.similarities.map((s) => s.color),
-                      },
-                      ],
-                    }}
-                    options={{
-                      responsive: true,
-                      plugins: {
-                      legend: { display: false },
-                      },
-                    }}
-                    />
-                  </div>
-                  ))}
-                </div>
-                <h2 className="text-3xl text-center text-zinc-300 my-4">
-                  Accessibility & Color Blindness Feedback
-                </h2>
-                {contrastResults.length > 0 && (
-                  <div className="mt-4 p-4 bg-zinc-800 text-white rounded-lg">
-                  <p className="mt-2">
-                    <strong>Suggestions for Improvement:</strong>
-                  </p>
-                  <ul className="list-disc pl-5 mt-2">
-                    <li>🔹 Increase the contrast between text and background colors to improve readability.</li>
-                    <li>🔹 Use high-contrast color combinations to ensure better visibility for all users.</li>
-                    <li>🔹 Avoid using colors that are indistinguishable for colorblind users. Consider using colorblind-friendly palettes.</li>
-                    <li>🔹 Test your color combinations with tools like the WCAG Contrast Checker to ensure compliance with accessibility standards.</li>
-                    <li>🔹 Consider the context in which the colors will be used. For example, text over images may require additional contrast adjustments.</li>
-                  </ul>
-                  </div>
-                )}
-                {/* Download Buttons */}
+        {/* Download Buttons */}
         <div className="flex justify-center space-x-4 my-8">
           <button
             className="px-6 py-2 bg-violet-700 border-2 border-violet-700 text-zinc-200 rounded-md drop-shadow-md hover:bg-violet-800 transition duration-300"
@@ -393,7 +451,6 @@ function Home() {
             Download Report as JSON
           </button>
         </div>
-
         <h2 className="mt-6 text-3xl font-mono p-2 text-zinc-200 border-b border-dashed border-zinc-200 w-fit">
           Color Contrast:
         </h2>
@@ -438,7 +495,6 @@ function Home() {
             </div>
           ))}
         </div>
-        
         <div className="p-2 my-4 bg-zinc-900 text-zinc-200">
           <h2 id="report" className="text-4xl font-bold text-zinc-200 mb-4">
             📊 Report Basis
@@ -449,7 +505,6 @@ function Home() {
             guidelines**. This ensures that the extracted colors are tested for
             **readability, accessibility, and user-friendly contrast ratios**.
           </p>
-
           {/* Color Extraction */}
           <div className="mb-6">
             <h3 className="text-2xl text-violet-300 font-semibold mb-2">
@@ -461,7 +516,6 @@ function Home() {
               with predefined colors.
             </p>
           </div>
-
           {/* Color Comparison */}
           <div className="mb-6">
             <h3 className="text-2xl text-violet-300 font-semibold mb-2">
@@ -473,7 +527,6 @@ function Home() {
               how closely the colors match.
             </p>
           </div>
-
           {/* Contrast Ratio Calculation */}
           <div className="mb-6">
             <h3 className="text-2xl text-violet-300 font-semibold mb-2">
@@ -485,17 +538,17 @@ function Home() {
               to determine text readability.
             </p>
           </div>
-
           {/* Text Extraction */}
           <div className="mb-6">
             <h3 className="text-2xl text-violet-300 font-semibold mb-2">
               📝 Text Extraction
             </h3>
             <p className="text-gray-300 text-sm mb-4">
-              The system extracts text from the uploaded image using **Tesseract.js**. This text can be copied to the clipboard for further use.
+              The system extracts text from the uploaded image using
+              **Tesseract.js**. This text can be copied to the clipboard for
+              further use.
             </p>
           </div>
-
           {/* Pass/Fail Criteria Table */}
           <div className="mb-6">
             <h3 className="text-2xl text-violet-300 font-semibold mb-2">
@@ -549,7 +602,6 @@ function Home() {
               </table>
             </div>
           </div>
-
           {/* Accessibility Feedback */}
           <div className="mb-6">
             <h3 className="text-2xl text-violet-300 font-semibold mb-2">
@@ -570,7 +622,6 @@ function Home() {
               </li>
             </ul>
           </div>
-
           <p className="mt-6 text-lg text-gray-300 font-semibold">
             **Why This Matters?** Ensuring **better readability, user
             experience, and WCAG compliance** leads to accessible and inclusive
