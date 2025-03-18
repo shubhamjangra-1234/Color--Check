@@ -4,7 +4,7 @@ import ColorThief from "colorthief";
 import tinycolor from "tinycolor2";
 import { Bar } from "react-chartjs-2";
 import Tesseract from "tesseract.js";
-import Loading from "../Loading/Loading";
+// import Loading from "../Loading/Loading";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -36,11 +36,11 @@ function Home() {
 
   const predefinedColors = [
     "#FF0000",
-    "#003DA5",
-    "#72B5E8",
-    "#54585A",
-    "#FFB612",
-    "#158B45",
+    "#0000FF",
+    "#FFA500",
+    "#800080",
+    "#FFFF00",
+    "#008000",
   ];
 
   const calculateSimilarity = (color1, color2) => {
@@ -123,7 +123,7 @@ function Home() {
         data: { text },
       } = await Tesseract.recognize(file, "eng", {});
 
-      setExtractedText(text); // Set the extracted text to state
+      setExtractedText(text.trim() || "No text detected in the image."); // Set the extracted text to state
 
       // Update the UI without refreshing
       const lastImage = uploadResponse.data.image;
@@ -159,7 +159,9 @@ function Home() {
             .map((rgb) =>
               tinycolor({ r: rgb[0], g: rgb[1], b: rgb[2] }).toHexString()
             );
+            
           setColors(extractedColors);
+          
 
           const comparisonResults = extractedColors.map((color) => {
             return {
@@ -344,7 +346,10 @@ function Home() {
           <h2 className="text-2xl font-mono mb-4">Extracted Text</h2>
           {/* Loading Animation */}
           {loadingText ? (
-            <Loading />
+            // <Loading />
+            <p className="mt-4 text-yellow-300">
+              Extracting text, please wait...
+            </p>
           ) : extractedText ? (
             <div>
               <pre className="whitespace-pre-wrap bg-zinc-900 p-2 rounded-md text-zinc-200">
