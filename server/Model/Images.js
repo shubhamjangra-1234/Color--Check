@@ -1,13 +1,7 @@
-const mongoose = require("mongoose");
-require("dotenv").config();
-
-mongoose.connect(process.env.MONGO_URI,{
-    useNewUrlParser:true,
-    useUNifiedTopology:true,
-});
+import mongoose from "mongoose";
 
 const ImageSchema = new mongoose.Schema({
-    image:String,
-})
-const ImageModel = mongoose.model("Images", ImageSchema);
-module.exports = ImageModel;
+    image: String,
+});
+
+export default mongoose.model("Images", ImageSchema);
