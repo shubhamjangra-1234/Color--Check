@@ -59,7 +59,7 @@ function Home() {
       extractedText,
       suggestions,
     });
-  }, [firstImage, colors, colorComparison, contrastResults, extractedText, suggestions]);
+  }, [firstImage]);
 
   useEffect(() => {
     if (firstImage && colors.length === 0) {
@@ -89,16 +89,23 @@ function Home() {
         // Calculate contrast between all color pairs
         const contrastResults = [];
         for (let i = 0; i < hexColors.length; i++) {
-          for (let j = i + 1; j < hexColors.length; j++) {
-            const contrast = calculateContrast(hexColors[i], hexColors[j]);
-            const feedback = generateFeedback(contrast);
-            contrastResults.push({
-              extractedColor: hexColors[i],
-              otherColor: hexColors[j],
-              contrastRatio: contrast,
-              result: feedback
-            });
+          const contrasts = [];
+          for (let j = 0; j < hexColors.length; j++) {
+            if (i !== j) {
+              const contrast = calculateContrast(hexColors[i], hexColors[j]);
+              const feedback = generateFeedback(contrast);
+              contrasts.push({
+                color: hexColors[j],
+                contrast: contrast,
+                feedback: feedback
+              });
+            }
           }
+          
+          contrastResults.push({
+            extractedColor: hexColors[i],
+            contrasts: contrasts
+          });
         }
         setContrastResults(contrastResults);
 

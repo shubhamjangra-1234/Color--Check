@@ -106,7 +106,7 @@ const simulateAchromatopsia = (r, g, b) => {
  */
 export const simulateColorBlindness = (hexColor, type) => {
   const rgb = hexToRgb(hexColor);
-  if (!rgb) return null;
+  if (!rgb) return hexColor;
 
   let simulatedRgb = { ...rgb };
 
@@ -126,11 +126,7 @@ export const simulateColorBlindness = (hexColor, type) => {
     case COLOR_BLINDNESS_TYPES.normal:
     default:
       // Return original color for normal vision
-      return {
-        original: hexColor,
-        simulated: hexColor,
-        rgb
-      };
+      return hexColor;
   }
 
   // Clamp values to valid RGB range
@@ -138,11 +134,7 @@ export const simulateColorBlindness = (hexColor, type) => {
   simulatedRgb.g = Math.max(0, Math.min(255, Math.round(simulatedRgb.g)));
   simulatedRgb.b = Math.max(0, Math.min(255, Math.round(simulatedRgb.b)));
 
-  return {
-    original: hexColor,
-    simulated: rgbToHex(simulatedRgb.r, simulatedRgb.g, simulatedRgb.b),
-    rgb: simulatedRgb
-  };
+  return rgbToHex(simulatedRgb.r, simulatedRgb.g, simulatedRgb.b);
 };
 
 /**

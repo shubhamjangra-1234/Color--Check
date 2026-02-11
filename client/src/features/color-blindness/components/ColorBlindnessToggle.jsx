@@ -9,9 +9,9 @@ const ColorBlindnessToggle = ({
   const modes = getColorBlindnessModes();
 
   return (
-    <div className="bg-zinc-800 rounded-lg p-4 shadow-lg">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold text-zinc-100">Color Vision</h3>
+    <div className="bg-zinc-800 rounded-lg p-2 shadow-lg">
+      <div className="flex flex-col md:flex-row gap-2 justify-between mb-3">
+        <h3 className="text-lg font-semibold text-nowrap text-zinc-100">Color Vision</h3>
         {currentMode !== 'normal' && (
           <span className="text-xs text-amber-400 bg-amber-900/30 px-2 py-1 rounded">
             Simulation – visual approximation

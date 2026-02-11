@@ -28,8 +28,8 @@ process.on('unhandledRejection', (reason, promise) => {
 const app = express();
 
 app.use(cors());
-app.use(Express.json());
-app.use(Express.static("Public"));
+app.use(express.json());
+app.use(express.static("Public"));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
