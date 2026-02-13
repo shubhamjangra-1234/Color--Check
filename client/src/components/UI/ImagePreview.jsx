@@ -12,11 +12,13 @@ const ImagePreview = ({ firstImage }) => {
             alt="Uploaded"
           />
         ) : (
-          <img
-            className="h-full w-full rounded-lg object-contain"
-            src="https://via.placeholder.com/400x300?text=No+Image+Uploaded"
-            alt="Placeholder"
-          />
+          <div className="h-full w-full rounded-lg bg-zinc-700 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-6xl mb-4">📷</div>
+              <div className="text-zinc-400">No image uploaded</div>
+              <div className="text-zinc-500 text-sm">Upload an image to begin analysis</div>
+            </div>
+          </div>
         )}
       </div>
     </div>

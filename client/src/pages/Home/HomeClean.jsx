@@ -15,6 +15,10 @@ import ColorComparisonCharts from '../../components/UI/ColorComparisonCharts';
 import ColorSuggestionsDisplay from '../../components/UI/ColorSuggestionsDisplay';
 import ContrastResultsDisplay from '../../components/UI/ContrastResultsDisplay';
 import ReportAnalysis from '../../components/UI/ReportAnalysis';
+import TextContrastAnalysis from '../../components/UI/TextContrastAnalysis';
+import ColorBlindnessSimulator from '../../components/UI/ColorBlindnessSimulator';
+import ContrastHeatmap from '../../components/UI/ContrastHeatmap';
+import AdvancedAccessibilityReport from '../../components/UI/AdvancedAccessibilityReport';
 
 function Home() {
   // State management
@@ -65,7 +69,7 @@ function Home() {
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center p-2 bg-zinc-900">
-      <main className="flex-grow p-2 w-full max-w-6xl">
+      <main className="flex-grow p-2 w-full ">
         {/* Hero Section */}
         <HeroSection />
 
@@ -107,11 +111,38 @@ function Home() {
         <ReportAnalysis
           isAnalyzing={isAnalyzing}
           accessibilityReport={accessibilityReport}
-          onShowReport={handleShowReport}
+          onShowReport={() => setShowReport(true)}
         />
 
         {/* Contrast Results */}
         <ContrastResultsDisplay contrastResults={contrastResults} />
+
+        {/* Advanced Features Section */}
+        <div className="mt-12 p-2 bg-zinc-800 rounded-lg shadow-xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-zinc-100 mb-4 md:text-center">
+            Advanced Accessibility Features
+          </h2>
+          <p className="text-xs text-zinc-300 text-center mb-4">
+            Professional-grade tools for comprehensive accessibility analysis and design validation
+          </p>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Text Contrast Analysis */}
+            <TextContrastAnalysis 
+              extractedText={extractedText}
+              firstImage={firstImage}
+            />
+            
+            {/* Color Blindness Simulator */}
+            <ColorBlindnessSimulator colors={colors} />
+            
+          </div>
+            {/* Contrast Heatmap */}
+            <ContrastHeatmap 
+              firstImage={firstImage}
+              contrastResults={contrastResults}
+            />
+        </div>
 
         {/* Report Basis Section */}
         <div className="p-2 my-4 bg-zinc-900 text-zinc-200">
@@ -251,7 +282,7 @@ function Home() {
       
       {/* Accessibility Report Modal */}
       {showReport && (
-        <AccessibilityReport 
+        <AdvancedAccessibilityReport 
           report={accessibilityReport} 
           onClose={() => setShowReport(false)} 
         />

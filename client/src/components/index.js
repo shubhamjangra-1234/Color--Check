@@ -14,6 +14,10 @@ export { default as ColorComparisonCharts } from './UI/ColorComparisonCharts';
 export { default as ColorSuggestionsDisplay } from './UI/ColorSuggestionsDisplay';
 export { default as ContrastResultsDisplay } from './UI/ContrastResultsDisplay';
 export { default as ReportAnalysis } from './UI/ReportAnalysis';
+export { default as TextContrastAnalysis } from './UI/TextContrastAnalysis';
+export { default as ColorBlindnessSimulator } from './UI/ColorBlindnessSimulator';
+export { default as ContrastHeatmap } from './UI/ContrastHeatmap';
+export { default as AdvancedAccessibilityReport } from './UI/AdvancedAccessibilityReport';
 
 // Feature Components
 // export { default as ImageUpload } from './ImageUpload/ImageUpload';
